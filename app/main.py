@@ -3,8 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import Base, engine
 from app.routes import auth_router, base_router
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+
+def create_tables():
+    """Create database tables."""
+    Base.metadata.create_all(bind=engine)
+
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -21,6 +24,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def on_startup():
+    """Initialize database on startup."""
+    create_tables()
+
 
 # Include routers
 app.include_router(base_router)
