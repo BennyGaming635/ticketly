@@ -14,7 +14,7 @@ os.environ['SECRET_KEY'] = 'test-secret-key-for-development'
 os.environ['ALGORITHM'] = 'HS256'
 os.environ['ACCESS_TOKEN_EXPIRE_MINUTES'] = '30'
 
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 from app.main import app, create_tables
 
 # Create database tables

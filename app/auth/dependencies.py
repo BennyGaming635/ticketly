@@ -7,7 +7,7 @@ from app.models.user import User
 from app.auth.utils import verify_token
 
 # Security scheme for bearer token
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 def get_token_from_cookie(request: Request) -> Optional[str]:
@@ -17,6 +17,7 @@ def get_token_from_cookie(request: Request) -> Optional[str]:
 
 def get_current_user(
     request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """Get the current authenticated user from JWT token."""
@@ -25,10 +26,8 @@ def get_current_user(
     token = get_token_from_cookie(request)
     
     # If not in cookie, try Authorization header
-    if not token:
-        credentials: HTTPAuthorizationCredentials = Depends(security)
-        if credentials:
-            token = credentials.credentials
+    if not token and credentials:
+        token = credentials.credentials
     
     if not token:
         raise HTTPException(
