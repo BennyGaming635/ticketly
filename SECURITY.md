@@ -11,6 +11,23 @@ This document summarizes the security measures implemented in the Ticketly platf
 - **Date**: 2026-01-21
 - **Language**: Python
 
+### Dependency Security Audit
+- **Status**: ✅ PASSED
+- **Date**: 2026-01-21
+- **Vulnerabilities Fixed**: 3
+
+#### Fixed Vulnerabilities
+1. **FastAPI 0.109.0 → 0.109.1**
+   - Issue: Content-Type Header ReDoS vulnerability
+   - Severity: Medium
+   - Status: ✅ Fixed
+
+2. **python-multipart 0.0.6 → 0.0.18**
+   - Issue #1: DoS via malformed multipart/form-data boundary
+   - Issue #2: Content-Type Header ReDoS vulnerability
+   - Severity: High
+   - Status: ✅ Fixed
+
 ## Security Features Implemented
 
 ### 1. Authentication & Authorization
