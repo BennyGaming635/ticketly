@@ -35,20 +35,95 @@ ticketly/
 ├── docker-compose.yml     # Docker Compose configuration
 ├── Dockerfile             # Docker image configuration
 ├── requirements.txt       # Python dependencies
-├── .env.example           # Example environment variables
+├── .env.example           # Example environment variables (Docker)
+├── .env.local.example     # Example environment variables (Local)
+├── test_api.py            # API test suite
 └── README.md              # This file
 ```
 
 ## Getting Started
 
-### Prerequisites
+Ticketly can be run either locally with Python or using Docker. Choose the method that works best for you.
+
+### Local Setup (Recommended for Development)
+
+The easiest way to get started is running Ticketly locally without Docker.
+
+#### Prerequisites
+
+- Python 3.11 or higher
+- pip (Python package manager)
+- PostgreSQL (optional - SQLite works too for development)
+- Git (for cloning the repository)
+
+#### Quick Start
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/BennyGaming635/ticketly.git
+   cd ticketly
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Create environment file**:
+   ```bash
+   cp .env.local.example .env
+   ```
+   
+   The default configuration uses SQLite (no database setup required!).
+   
+   To use PostgreSQL instead, edit `.env` and:
+   - Install PostgreSQL on your system
+   - Create a database and user:
+     ```bash
+     # Connect to PostgreSQL as admin
+     sudo -u postgres psql
+     
+     # Run these commands in PostgreSQL prompt:
+     CREATE DATABASE ticketly_db;
+     CREATE USER ticketly_user WITH PASSWORD 'ticketly_password';
+     GRANT ALL PRIVILEGES ON DATABASE ticketly_db TO ticketly_user;
+     \q
+     ```
+   - Update `DATABASE_URL` in `.env` to use PostgreSQL
+
+5. **Run the application**:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+   The application will be available at:
+   - API: http://localhost:8000
+   - Interactive API docs: http://localhost:8000/docs
+   - Alternative API docs: http://localhost:8000/redoc
+
+6. **Test the API**:
+   ```bash
+   python test_api.py
+   ```
+
+### Docker Setup (For Production Deployment)
+
+If you prefer to use Docker:
+
+#### Prerequisites
 
 - Docker and Docker Compose installed
 - Git (for cloning the repository)
 
-### Installation
+#### Installation
 
-1. **Clone the repository**:
+1. **Clone the repository** (if not already done):
    ```bash
    git clone https://github.com/BennyGaming635/ticketly.git
    cd ticketly
@@ -85,6 +160,47 @@ ticketly/
    ```bash
    docker-compose down
    ```
+
+## Testing
+
+### Running Tests
+
+The project includes a comprehensive test suite to verify all functionality:
+
+```bash
+# Activate your virtual environment first
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Run the test suite
+python test_api.py
+```
+
+The tests will verify:
+- Health check and root endpoints
+- User registration
+- User login and JWT authentication
+- Protected endpoint access
+- Error handling (duplicate registration, invalid credentials)
+
+### Manual API Testing
+
+You can also test the API manually using:
+
+1. **Interactive Documentation** (Swagger UI): http://localhost:8000/docs
+2. **Alternative Documentation** (ReDoc): http://localhost:8000/redoc
+3. **Command Line with curl**:
+
+```bash
+# Register a new user
+curl -X POST "http://localhost:8000/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"testpass123"}'
+
+# Login
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"testpass123"}'
+```
 
 ## API Endpoints
 
@@ -144,42 +260,19 @@ ticketly/
 
 ## Development
 
-### Running without Docker
+### Database Migrations
 
-1. **Install Python 3.11+**
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up PostgreSQL** and update the `DATABASE_URL` in `.env`
-
-5. **Run the application**:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-
-### Testing the API
-
-You can test the API using the interactive documentation at http://localhost:8000/docs or use curl:
+If you need to modify database models, use Alembic for migrations:
 
 ```bash
-# Register a new user
-curl -X POST "http://localhost:8000/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"testpass123"}'
+# Create a new migration
+alembic revision --autogenerate -m "Description of changes"
 
-# Login
-curl -X POST "http://localhost:8000/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"testpass123"}'
+# Apply migrations
+alembic upgrade head
+
+# Rollback migrations
+alembic downgrade -1
 ```
 
 ## Security Considerations
