@@ -84,8 +84,17 @@ The easiest way to get started is running Ticketly locally without Docker.
    
    To use PostgreSQL instead, edit `.env` and:
    - Install PostgreSQL on your system
-   - Create a database: `createdb ticketly_db`
-   - Create a user: `createuser -P ticketly_user`
+   - Create a database and user:
+     ```bash
+     # Connect to PostgreSQL as admin
+     sudo -u postgres psql
+     
+     # Run these commands in PostgreSQL prompt:
+     CREATE DATABASE ticketly_db;
+     CREATE USER ticketly_user WITH PASSWORD 'ticketly_password';
+     GRANT ALL PRIVILEGES ON DATABASE ticketly_db TO ticketly_user;
+     \q
+     ```
    - Update `DATABASE_URL` in `.env` to use PostgreSQL
 
 5. **Run the application**:
